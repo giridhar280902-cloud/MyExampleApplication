@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-sudo apt update && sudo apt install nodejs npm
-#Install pm2 which is a production process manager for Node.js with a built load balancer
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+sudo apt-get update
+sudo apt-get install -y nodejs npm
 sudo npm install -g pm2
-#Stop any instance of our application running currently
-pm2 stop example_app
-#Change directory to folder where application is downloaded.
-cd ExampleApp
-#Install application dependencies
 npm install
-#Start the application with the process name example_app using pm2
-pm2 start ./bin/www –name example_appgit fetch origin main
-git ls-tree --name-only FETCH_HEAD -- deploy.sh
+
+if pm2 describe example_app >/dev/null 2>&1; then
+  pm2 restart example_app --update-env
+else
+  pm2 start ./bin/www --name example_app
+fi

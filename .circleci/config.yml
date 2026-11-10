@@ -41,7 +41,18 @@ jobs:
     steps:
       - run:
           name: deploy-application
-          command: >-
-            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "rm -rf ExampleApplication; git clone
-            https://github.com/giridhar280902-cloud/MyExampleApplication.git; source
-            MyExampleApplication/deploy.sh"
+          command: |
+            ssh -o StrictHostKeyChecking=no "$EC2_USERNAME@$EC2_PUBLIC_DNS" '
+              set -e
+              repo="$HOME/MyExampleApplication"
+              if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                git -C "$repo" pull --ff-only origin main
+              elif [ -e "$repo" ]; then
+                echo "Deployment path exists but is not a Git checkout: $repo" >&2
+                exit 1
+              else
+                git clone https://github.com/giridhar280902-cloud/MyExampleApplication.git "$repo"
+              fi
+              cd "$repo"
+              bash ./deploy.sh
+            '
