@@ -42,5 +42,5 @@ jobs:
       - run:
           name: deploy-application
           command: >-
-            ssh -o BatchMode=yes "$EC2_USERNAME@$EC2_PUBLIC_DNS" \
+            ssh -o StrictHostKeyChecking=no BatchMode=yes "$EC2_USERNAME@$EC2_PUBLIC_DNS" \
             'cd "$HOME/MyExampleApplication" && git pull --ff-only origin main && bash ./deploy.sh'
